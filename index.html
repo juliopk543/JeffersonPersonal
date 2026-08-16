@@ -696,6 +696,11 @@
 .jp-marquee-track:hover{animation-play-state:paused}
 @keyframes jp-marquee{from{transform:translateX(0)}to{transform:translateX(-25%)}}
 
+/* Framer marca esses blocos de texto com white-space:pre (linha unica que nao quebra) e
+   todos os ancestrais tem overflow hidden/clip, entao no celular o texto era cortado nas
+   duas pontas. pre-wrap mantem os <br> e os espacos, mas permite a quebra. */
+.framer-cI6Co .framer-pf9g4c,.framer-cI6Co .framer-17555a8,.framer-cI6Co .framer-1s7hqec,.framer-cI6Co .framer-2ihb97,.framer-cI6Co .framer-114svsa,.framer-cI6Co .framer-k80sgt,.framer-cI6Co .framer-vec34g,.framer-cI6Co .framer-shdof9,.framer-cI6Co .framer-1pkr6to,.framer-cI6Co .framer-19b5oqh,.framer-cI6Co .framer-1i9xbdp,.framer-cI6Co .framer-r7ejo6,.framer-cI6Co .framer-e0zedd,.framer-cI6Co .framer-wp9j32,.framer-cI6Co .framer-val3if,.framer-cI6Co .framer-e5yd2i,.framer-cI6Co .framer-cc6tu7{white-space:pre-wrap;max-width:100%}
+
 /* Cards dos planos presenciais. Foto a esquerda sobreposta ao painel preto de borda vermelha;
    o painel e content-driven (sem altura fixa) para nunca cortar texto. */
 .jp-planos{display:flex;flex-direction:column;gap:20px;width:100%}
