@@ -679,15 +679,17 @@
 
 
 <style>
-/* FAQ accordion: collapse "Answer" panels that start at opacity:0 (previously animated by
-   Framer's own JS, which this static export no longer loads). Panels default to Framer's
-   authored initial opacity (1 = open, 0 = closed); we just add the missing collapse. */
-[data-framer-name="Answer"]{max-height:0;overflow:hidden;transition:opacity .25s ease,max-height .3s ease}
-[data-framer-name="Answer"][style*="opacity:1"]{max-height:600px}
+/* FAQ. A variante "Closed" que o Framer gera trava cada item em height:40px com overflow
+   hidden, e sem o runtime dele nada desfazia isso: a resposta ficava recortada mesmo depois
+   do clique. Aqui a altura do item passa a vir de .jp-faq-item e o estado, de .jp-fechado. */
+[data-framer-name="Top"]{cursor:pointer;user-select:none}
+.jp-faq-item{height:min-content!important}
+.jp-faq-item [data-framer-name="Answer"]{opacity:1!important;overflow:hidden;max-height:400px;transition:max-height .3s ease,opacity .25s ease,padding .3s ease}
+.jp-faq-item.jp-fechado [data-framer-name="Answer"]{opacity:0!important;max-height:0;padding-top:0;padding-bottom:0}
+/* o tracinho vertical do "+" gira ate virar o "-" do item aberto */
+.jp-faq-item [data-framer-name="Top"]>div:first-child>div:nth-child(2){transition:transform .25s ease}
+.jp-faq-item:not(.jp-fechado) [data-framer-name="Top"]>div:first-child>div:nth-child(2){transform:rotate(90deg)}
 .framer-wd6d8j{height:auto !important}
-[data-framer-name="Answer"].jp-open{opacity:1 !important;max-height:600px}
-[data-framer-name="Answer"].jp-closed{opacity:0 !important;max-height:0}
-[data-framer-name="Top"]{cursor:pointer}
 .jp-cr1{aspect-ratio:0.66667;height:var(--framer-aspect-ratio-supported,181px);width:121px;position:relative;overflow:visible}
 .jp-cr2{aspect-ratio:0.62832;height:var(--framer-aspect-ratio-supported,181px);width:114px;position:relative;overflow:visible}
 .jp-cr3{aspect-ratio:0.56250;height:var(--framer-aspect-ratio-supported,181px);width:102px;position:relative;overflow:visible}
@@ -735,21 +737,33 @@
 </style>
 <script>
 (function(){
-  // FAQ accordion: one small handler for all 5 items instead of relying on Framer's
-  // per-item component-variant JS. Click a "Top" header, toggle its sibling "Answer".
-  document.querySelectorAll('[data-framer-name="Top"]').forEach(function(top){
-    top.addEventListener('click', function(){
-      var answer = top.parentElement && top.parentElement.querySelector('[data-framer-name="Answer"]');
-      if (!answer) return;
-      var isOpen = answer.classList.contains('jp-open') ||
-        (!answer.classList.contains('jp-closed') && answer.getAttribute('style').indexOf('opacity:1') !== -1);
-      answer.classList.remove('jp-open','jp-closed');
-      answer.classList.add(isOpen ? 'jp-closed' : 'jp-open');
-      // fake a "+"/"-" toggle on the little icon bars Framer drew for the closed state
-      var bars = top.querySelectorAll('div[style*="background-color:rgb(255, 255, 255)"]');
-      if (bars.length > 1) {
-        bars[1].style.transform = isOpen ? 'none' : 'rotate(90deg)';
+  /* FAQ: um unico handler para os 5 itens, no lugar do JS de variante do Framer que o export
+     estatico nao carrega. Abre um item por vez, como no desenho original. */
+  var itens = [];
+  document.querySelectorAll('[data-framer-name="Top"]').forEach(function(topo){
+    var item = topo.parentElement;
+    var resposta = item && item.querySelector('[data-framer-name="Answer"]');
+    if (!resposta) return;
+    item.classList.add('jp-faq-item');
+    /* o Framer deixou o item ja aberto com opacity:1 na resposta */
+    if ((resposta.getAttribute('style') || '').indexOf('opacity:1') === -1) item.classList.add('jp-fechado');
+    topo.setAttribute('role', 'button');
+    topo.setAttribute('aria-expanded', item.classList.contains('jp-fechado') ? 'false' : 'true');
+    itens.push({ item: item, topo: topo });
+    function alternar(){
+      var vaiAbrir = item.classList.contains('jp-fechado');
+      itens.forEach(function(o){
+        o.item.classList.add('jp-fechado');
+        o.topo.setAttribute('aria-expanded', 'false');
+      });
+      if (vaiAbrir){
+        item.classList.remove('jp-fechado');
+        topo.setAttribute('aria-expanded', 'true');
       }
+    }
+    topo.addEventListener('click', alternar);
+    topo.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); alternar(); }
     });
   });
 })();
